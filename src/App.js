@@ -1,23 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import ApiChainBuilder from "./ApiChainBuilder";
+import ApiDisplay from "./ApiDisplay";
+import axios from "axios";
 
 function App() {
+  const [userData, setUserData] = useState([]);
+  const [postData, setPostData] = useState(null);
+  const [commentsData, setCommentsData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleApiChain = async (postBody) => {
+    setLoading(true);
+    setError("");
+    try {
+      // Step 1: Get Users
+      const usersResponse = await axios.get("https://jsonplaceholder.typicode.com/users");
+      const users = usersResponse.data;
+      setUserData(users);
+
+      // Step 2: Create Post (Using the first user)
+      const userId = users[0]?.id; // Take the first user
+      const postResponse = await axios.post("https://jsonplaceholder.typicode.com/posts", {
+        title: postBody.title,
+        body: postBody.body,
+        userId: userId,
+      });
+      const post = postResponse.data;
+      setPostData(post);
+
+      // Step 3: Get Comments for the created post
+      const commentsResponse = await axios.get(`https://jsonplaceholder.typicode.com/comments?postId=${post.id}`);
+      setCommentsData(commentsResponse.data);
+    } catch (err) {
+      setError("Failed to fetch data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gray-100 p-5">
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">API Chain Dashboard</h1>
+      <div className="container mx-auto">
+        <ApiChainBuilder onApiSubmit={handleApiChain} />
+        <ApiDisplay
+          userData={userData}
+          postData={postData}
+          commentsData={commentsData}
+          loading={loading}
+          error={error}
+        />
+      </div>
     </div>
   );
 }
