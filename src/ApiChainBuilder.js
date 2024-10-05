@@ -3,15 +3,25 @@ import React, { useState } from "react";
 function ApiChainBuilder({ onApiSubmit }) {
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
-
+    const[UserId,setUserId] = useState(0)
     const handleSubmit = (e) => {
         e.preventDefault();
-        onApiSubmit({ title, body });
+        onApiSubmit({ title, body, UserId});
     };
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-2xl font-semibold mb-4">Create New Post</h2>
+            <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Enter UserID</label>
+                <input
+                    type="number"
+                    value={UserId}
+                    onChange={(e) => setUserId(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    required
+                />
+            </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Title</label>
                 <input
